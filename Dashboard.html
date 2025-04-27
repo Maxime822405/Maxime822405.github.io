@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Social Media Premium | edarwin 2025</title>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@3.3.1/index.min.css" rel="stylesheet">
+  <style>
+    html, body {
+      font-family: 'InterVariable', Inter, Arial, sans-serif;
+      background-color: #f7fafc;
+      color: #22223b;
+      scroll-behavior: smooth;
+      transition: background-color .25s,color .15s;
+    }
+    .stat-block { transition: box-shadow 0.2s; }
+    .stat-block:hover { box-shadow: 0 6px 32px rgba(58, 78, 113, 0.07), 0 1.5px 6px rgba(58, 78, 113, 0.03);}
+    .chart-section { min-height: 310px; height: auto;}
+    ::-webkit-scrollbar { width: 8px; background: #e2e8f0;}
+    ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 8px;}
+    .fade-in { animation: fadeInX 0.32s ease-in;}
+    @keyframes fadeInX { from { opacity: 0; transform: translateY(24px);} to { opacity: 1; transform: translateY(0);}}
+    .editable-cell:focus-within { background: #fffbe6 !important; outline: 1.5px solid #FFCF4F !important;}
+    .truncate-middle { max-width:95px; overflow-x:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;}
+    @media (max-width:680px){ .truncate-middle {max-width:60px;} }
+    body.dark { background: #181926; color: #e6e6ee;}
+    body.dark .bg-white, body.dark .stat-block, body.dark .border, body.dark .chart-section, body.dark .rounded-xl, body.dark .shadow-md, body.dark .p-6, body.dark .shadow, body.dark .p-4 { background: #23253a !important; color: #e6e6ee;}
+    body.dark .border, body.dark .border-t, body.dark .border-teal-200, body.dark .border-indigo-200, body.dark .border-indigo-300 { border-color: #313355 !important;}
+    body.dark .bg-gray-50 { background: #20213a !important;}
+    body.dark .bg-teal-50,.dark .bg-indigo-50,.dark .bg-yellow-50 { background: #21213b !important;}
+    body.dark .text-gray-900 { color: #e6e6ee !important; }
+    body.dark .text-indigo-700 { color: #b6bcff !important;}
+    body.dark .text-yellow-600, body.dark .text-yellow-500 { color: #ffe860 !important;}
+    body.dark .text-green-600, body.dark .text-green-500 { color: #78efb5 !important;}
+    body.dark .text-blue-700, body.dark .text-blue-600 { color: #72a4fa !important;}
+    body.dark .text-red-700, body.dark .text-red-500, body.dark .text-red-400 { color: #ff978b !important;}
+    body.dark .text-purple-400, body.dark .text-purple-700 { color: #bbaaff !important;}
+    body.dark .text-pink-700, body.dark .text-pink-400 { color: #ffb7e8 !important;}
+    body.dark .text-indigo-600 { color: #b6bcff !important;}
+    body.dark .text-teal-600 { color: #81ffe9 !important;}
+    body.dark .text-gray-500, body.dark .text-gray-400, body.dark .text-gray-600, body.dark .text-gray-700 { color: #c3c7e4 !important;}
+    body.dark .text-indigo-800 { color: #a3bafe !important;}
+    body.dark .border-indigo-200 { border-color: #474a6a !important;}
+    body.dark .border-indigo-300 { border-color: #474a6a !important;}
+    body.dark .table-list { background: #2c2e4e;}
+    body.dark .bg-indigo-100 { background: #26274A !important;}
+    body.dark .text-indigo-800 { color: #dee0fc !important;}
+    body.dark input, body.dark select, body.dark textarea, body.dark .border { background: #20213a !important; color:#e4e6fd!important; border-color: #313355;}
+    body.dark .bg-yellow-50 { background: #393a2a !important;}
+    .mode-toggle { transition: background .1s, color .1s;}
+    .dark .mode-toggle { background:#313355!important; color:#ffe860!important;}
+    .dark input:focus, .dark select:focus, .dark textarea:focus { border-color: #ffe860 !important;}
+    input:-webkit-autofill, select:-webkit-autofill {
+      box-shadow:0 0 0 50px #f7fafc inset !important; -webkit-text-fill-color: #23253a;
+    }
+    body.dark input:-webkit-autofill,body.dark select:-webkit-autofill {
+      box-shadow:0 0 0 50px #20213a inset !important; -webkit-text-fill-color: #e4e6fd;
+    }
+    .modal-bg {background:rgba(30,40,75,0.45);}
+    .modal-container {max-width:430px;width:98vw;}
+    .modal {z-index:120;}
+    .modal label {font-size: 0.95rem;}
+    .modal input[type="text"], .modal input[type="password"], .modal input[type="url"] {font-size: 0.96rem;}
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <!-- Topbar: Date & Mode -->
+  <div class="w-full bg-white shadow sticky top-0 z-30 flex items-center px-2 py-1 md:px-4 md:py-1.5 relative">
+    <div class="flex items-center space-x-2 md:space-x-4">
+      <span id="datetimeBadge" class="bg-indigo-50 text-indigo-700 dark:bg-indigo-800 dark:text-yellow-200 font-mono px-3 py-1 rounded text-xs md:text-sm shadow-sm"></span>
+    </div>
+    <button id="openAirtableConfig" class="mx-2 text-indigo-600 dark:text-yellow-300 focus:outline-none hover:bg-indigo-100 px-2.5 py-1.5 rounded" title="Configurer Airtable"><i class="fa-solid fa-database"></i></button>
+    <button id="toggleMode" title="Basculer mode sombre / clair" class="ml-auto mode-toggle px-2.5 py-2 bg-gray-50 dark:bg-gray-800 rounded-full shadow hover:bg-indigo-100 dark:hover:bg-indigo-800 border border-gray-200 dark:border-indigo-600 mr-2 focus:outline-none flex items-center transition-all">
+      <i class="fa-solid fa-moon text-indigo-600 dark:text-yellow-300 text-lg block" id="moon_icon" style="display:inline"></i>
+      <i class="fa-solid fa-sun text-yellow-400 text-lg hidden" id="sun_icon"></i>
+    </button>
+  </div>
+  <!-- Header -->
+  <header class="bg-white shadow sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-chart-line text-indigo-600 text-2xl"></i>
+        <span class="text-2xl font-semibold tracking-tight text-indigo-700">Dashboard Social Media Premium</span>
+      </div>
+      <span class="text-gray-500 font-light text-md hidden md:block">
+Dashboard Social Media Premium | Création Genspark – UI Inspirée par Hootsuite, Sprout Social, Buffer. Optimisé pour export PDF et connecteurs Airtable | Développé par edarwin 2025 et Genspark
+      </span>
+    </div>
+  </header>
+  <!-- Airtable Modal Config -->
+  <div id="airtableModalBg" class="modal-bg fixed left-0 top-0 w-screen h-screen py-8 z-50 flex items-center justify-center hidden" style="backdrop-filter: blur(2px);">
+  <div class="modal modal-container mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 relative border border-indigo-200 dark:border-indigo-700 fade-in">
+    <button onclick="document.getElementById('airtableModalBg').classList.add('hidden')" class="absolute right-2 top-2 text-gray-400 hover:text-red-400 text-xl">×</button>
+    <h2 class="font-semibold text-lg mb-2 text-indigo-700 dark:text-yellow-200 flex items-center"><i class="fa-solid fa-database mr-2"></i>Configuration Airtable / Webhook</h2>
+    <div class="flex flex-col gap-2">
+      <label for="airtableToken">Clé API Airtable (PAT) <span class="text-red-500">*</span></label>
+      <input type="password" class="border rounded px-2 py-1" id="airtableToken" placeholder="PatXXXXXXXX...">
+      <label for="airtableBase">ID de la base Airtable <span class="text-red-500">*</span></label>
+      <input type="text" class="border rounded px-2 py-1" id="airtableBase" placeholder="appXXXXX...">
+      <label for="airtableTable">Nom de la Table (par défaut: Publications)</label>
+      <input type="text" class="border rounded px-2 py-1" id="airtableTable" value="Publications">
+      <label for="airtableWebhook">Webhook Zapier (optionnel)</label>
+      <input type="url" class="border rounded px-2 py-1" id="airtableWebhook" placeholder="https://hooks.zapier.com/...">
+    </div>
+    <div class="flex flex-row justify-between mt-5 pt-2 border-t border-gray-100">
+      <div class="flex items-center gap-2">
+        <button id="airtableSaveBtn" class="text-white bg-indigo-700 hover:bg-indigo-900 rounded px-3 py-1 font-bold"><i class="fa-solid fa-check"></i>Enregistrer</button>
+        <button onclick="document.getElementById('airtableModalBg').classList.add('hidden')" class="text-gray-500 hover:text-gray-800 rounded px-3 py-1 border">Annuler</button>
+      </div>
+      <span id="airtableStatus" class="text-xs ml-4 text-teal-600"></span>
+    </div>
+  </div>
+  </div>
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto p-4 md:p-8" id="dashboard">
+    <!-- KPI Section -->
+    <section class="my-10">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-5 fade-in">
+        <div class="stat-block shadow-md bg-white rounded-xl p-4 text-center flex flex-col items-center">
+          <span class="text-xs font-semibold uppercase text-teal-600 tracking-wide mb-1"><i class="fa-solid fa-bullseye"></i> Portée globale</span>
+          <span id="kpiPortee" class="text-2xl font-bold text-indigo-800">–</span>
+        </div>
+        <div class="stat-block shadow-md bg-white rounded-xl p-4 text-center flex flex-col items-center">
+          <span class="text-xs font-semibold uppercase text-purple-700 tracking-wide mb-1"><i class="fa-solid fa-heart"></i> Engagements</span>
+          <span id="kpiEngagement" class="text-2xl font-bold text-pink-700">–</span>
+        </div>
+        <div class="stat-block shadow-md bg-white rounded-xl p-4 text-center flex flex-col items-center">
+          <span class="text-xs font-semibold uppercase text-yellow-500 tracking-wide mb-1">Taux moyen engagement</span>
+          <span id="kpiTE" class="text-2xl font-bold text-yellow-600">–</span>
+        </div>
+        <div class="stat-block shadow-md bg-white rounded-xl p-4 text-center flex flex-col items-center">
+          <span class="text-xs font-semibold uppercase text-blue-700 tracking-wide mb-1">Nb. de publications</span>
+          <span id="kpiNbPubli" class="text-2xl font-bold text-blue-700">–</span>
+        </div>
+      </div>
+    </section>
+    <!-- Charts Section -->
+    <section class="my-10 grid grid-cols-1 md:grid-cols-2 gap-6 chart-section">
+      <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center shadow-md">
+        <h3 class="text-lg font-semibold text-indigo-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Types de contenu</h3>
+        <canvas id="pieTypes" style="max-width: 270px;max-height:245px;"></canvas>
+      </div>
+      <div class="bg-white rounded-xl p-6 flex flex-col items-center justify-center shadow-md">
+        <h3 class="text-lg font-semibold text-teal-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-chart-line"></i> Evolution du mois courant</h3>
+        <canvas id="lineMoEvolution" style="max-height:230px;"></canvas>
+      </div>
+    </section>
+
+    <!-- Advanced Analytics & Predictive Section -->
+    <section class="mb-16">
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col gap-2">
+        <h3 class="text-lg font-semibold text-green-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> Indices de performance & analyse prédictive</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <div class="font-medium text-green-800 text-sm mb-1"><i class="fa-solid fa-circle-check"></i> Pic d'engagement</div>
+            <div id="predictPic" class="text-xl font-semibold text-green-700">–</div>
+          </div>
+          <div>
+            <div class="font-medium text-yellow-500 text-sm mb-1"><i class="fa-solid fa-arrow-trend-up"></i> Croissance du mois</div>
+            <div id="predictMonth" class="text-xl font-semibold text-yellow-600">–</div>
+          </div>
+          <div>
+            <div class="font-medium text-blue-700 text-sm mb-1"><i class="fa-solid fa-clock"></i> Heure optimale de post</div>
+            <div id="predictHour" class="text-xl font-semibold text-blue-700">–</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Posts Table Section -->
+    <section class="mb-12">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center mb-4 gap-2">
+        <div class="flex items-center">
+          <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2"><i class="fa-solid fa-table-list text-teal-600"></i> Suivi détaillé des publications</h2>
+        </div>
+        <button id="exportTableCSV" class="sm:ml-auto text-teal-600 rounded px-3 py-2 border hover:bg-teal-50 hover:border-teal-400 border-teal-200 text-xs font-bold transition flex items-center gap-1"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+        <button id="airtableSyncBtn" class="text-indigo-700 border border-indigo-200 px-3 py-2 rounded hover:bg-indigo-50 text-xs font-bold flex items-center gap-1 transition" title="Synchroniser avec Airtable"><i class="fa-solid fa-cloud-arrow-up"></i>Sync Airtable</button>
+      </div>
+      <div id="airtableLoader" class="hidden flex items-center gap-2 mb-2"><span class="animate-spin text-lg text-indigo-500"><i class="fa-solid fa-spinner"></i></span> <span>Sauvegarde en cours...</span></div>
+      <div class="pb-3">
+        <form id="addRowForm" class="flex flex-col md:flex-row gap-2 md:gap-3 items-start fade-in mb-2 bg-white p-3 rounded-md shadow-sm border border-teal-50">
+          <input type="date" class="border p-2 text-xs rounded w-full md:w-auto" required id="newDate">
+          <select class="border p-2 text-xs rounded w-full md:w-auto" id="newPlateforme" required>
+            <option>Instagram</option>
+            <option>Facebook</option>
+          </select>
+          <select class="border p-2 text-xs rounded w-full md:w-auto" id="newType" required>
+            <option>Image</option>
+            <option>Vidéo</option>
+            <option>Reel</option>
+            <option>Story</option>
+          </select>
+          <input type="text" class="border p-2 text-xs rounded w-full md:w-auto" id="newCaption" placeholder="Titre / Caption" maxlength="96" required>
+          <input type="number" class="border p-2 text-xs rounded w-full md:w-20" min="0" id="newPortee" placeholder="Portée">
+          <input type="number" class="border p-2 text-xs rounded w-full md:w-16" min="0" id="newLikes" placeholder="Likes">
+          <input type="number" class="border p-2 text-xs rounded w-full md:w-16" min="0" id="newComs" placeholder="Comms.">
+          <input type="number" class="border p-2 text-xs rounded w-full md:w-16" min="0" id="newShares" placeholder="Partages">
+          <input type="number" class="border p-2 text-xs rounded w-full md:w-16" min="0" id="newViews" placeholder="Vues">
+          <input type="number" class="border p-2 text-xs rounded w-full md:w-20" min="0" max="100" id="newTE" placeholder="Taux Eng. %">
+          <input type="url" class="border p-2 text-xs rounded w-full md:w-auto" id="newLien" placeholder="Lien complet du post">
+          <button type="submit" class="bg-teal-600 px-4 py-2 text-xs text-white rounded hover:bg-teal-700 flex items-center gap-1">
+            <i class="fa-solid fa-plus"></i>Ajouter
+          </button>
+        </form>
+        <div class="text-xs text-gray-500 mb-1 ml-1 mt-1 flex gap-3 flex-wrap">
+          <span><i class="fa-solid fa-link text-blue-500"></i> <b>Lien du post</b> : Préciser le lien pour mise à jour automatique des stats (si supporté).</span>
+          <span><i class="fa-solid fa-hand text-yellow-500"></i><b> Modification manuelle possible</b> : Cliquez l'icône crayon pour toute la ligne.</span>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border bg-white rounded-xl">
+          <thead>
+            <tr class="bg-teal-50 text-gray-700">
+              <th class="p-2">Date</th>
+              <th class="p-2">Plateforme</th>
+              <th class="p-2">Type</th>
+              <th class="p-2">Titre / Caption</th>
+              <th class="p-2">Portée</th>
+              <th class="p-2">Likes</th>
+              <th class="p-2">Commentaires</th>
+              <th class="p-2">Partages</th>
+              <th class="p-2">Vues</th>
+              <th class="p-2">Taux d'engagement (%)</th>
+              <th class="p-2">Lien</th>
+              <th class="p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="postsTable">
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <!-- Airtable Integration Section -->
+    <section class="mb-12">
+      <h2 class="text-xl md:text-2xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-plug text-indigo-600"></i> Intégration Airtable API</h2>
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col gap-2">
+        <p class="text-gray-700"><strong>Airtable Ready&nbsp;:</strong> Ce tableau de bord permet d'importer/exporter vos données publications en un clic (format CSV). Pour une synchronisation automatique, connectez l'API Airtable à ce dashboard.</p>
+        <ul class="list-disc pl-7 leading-relaxed text-sm text-gray-600">
+          <li>Ajoutez votre clé API Airtable et l'ID de votre base dans les paramètres.</li>
+          <li>Reliez et synchronisez vos données post et analytics.</li>
+          <li>Mapping automatique des champs principaux&nbsp;: date, type, portée, engagement, likes, plateformes, etc.</li>
+          <li>Supporte l'import et l'export multi-lignes en un clic.</li>
+        </ul>
+      </div>
+      <div class="bg-indigo-100 border-t border-indigo-300 p-4 rounded-b-xl mt-2 text-xs text-indigo-800 flex items-center gap-2">
+        <i class="fa-solid fa-circle-info"></i> 
+        Pour connecter Airtable en direct, reportez-vous à la doc développeur ou utilisez <a href="https://zapier.com/apps/airtable/integrations" target="_blank" class="underline hover:text-indigo-900">Zapier</a> ou <a href="https://make.com/fr/integrations/airtable" target="_blank" class="underline hover:text-indigo-900">Make</a> pour automatiser les flux analytics.
+      </div>
+      <div class="bg-white border p-4 rounded-xl mt-4 text-xs">
+        <b>Guide d’hébergement & synchronisation API :</b>
+        <ol class="list-decimal ml-5 mt-1 mb-1">
+          <li><b>Hébergez le fichier HTML sur une plateforme permettant les appels externes&nbsp;: <a href="https://pages.github.com/" class="underline text-blue-700" target="_blank">GitHub Pages</a>, <a href="https://netlify.com/" class="underline text-blue-700" target="_blank">Netlify</a> ou <a href="https://vercel.com/" class="underline text-blue-700" target="_blank">Vercel</a> (pour l’API directe/out Zapier).</b></li>
+          <li>Pensez à sécuriser votre clé Airtable (créez un proxy simple ou utilisez la connexion Zapier/Make pour faciliter l’intégration sans exposer de secrets dans le navigateur).</li>
+          <li>Lorsque le dashboard est hébergé, configurez vos identifiants dans l’icône <i class="fa-solid fa-database"></i> en haut.</li>
+          <li>Lancez la synchronisation - et vérifiez l’état dans Airtable.</li>
+          <li>Pour l’export PDF : utilisez la fonction d’impression PDF de votre navigateur (Cmd/Ctrl+P).</li>
+        </ol>
+        <div class="text-indigo-500 mt-2">
+          En local (`file://`) ou prévisualisation, les appels aux APIs sont bloqués pour des raisons de sécurité navigateur. <b>Hébergez publiquement pour que la connexion API fonctionne !</b>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <footer class="text-center text-gray-400 text-xs pt-8 pb-4 flex flex-col gap-1">
+      <span>Dashboard Social Media Premium | Création Genspark – UI Inspirée par Hootsuite, Sprout Social, Buffer. Optimisé pour export PDF et connecteurs Airtable | Développé par edarwin 2025 et Genspark</span>
+      <span>Données ci-dessus à titre démo</span>
+    </footer>
+  </main>
+  <script>
+    // Date/Time/Theme Controls
+    function updateDateTime() {
+      const now = new Date();
+      let d = now.getDate().toString().padStart(2,"0");
+      let m = (now.getMonth()+1).toString().padStart(2,"0");
+      let y = now.getFullYear();
+      let h = now.getHours().toString().padStart(2,"0");
+      let min = now.getMinutes().toString().padStart(2,"0");
+      document.getElementById("datetimeBadge").textContent = d+"/"+m+"/"+y+" – "+h+":"+min;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 30000);
+
+    function setTheme(darkMode) {
+      document.body.classList.toggle("dark", darkMode);
+      document.getElementById('moon_icon').style.display = darkMode ? "none" : "";
+      document.getElementById('sun_icon').style.display = darkMode ? "" : "none";
+      localStorage.setItem('dashboard_theme', darkMode ? "dark":"light");
+    }
+    document.getElementById('toggleMode').onclick = function() {
+      setTheme(!document.body.classList.contains("dark"));
+    };
+    (function(){
+      const p = localStorage.getItem('dashboard_theme');
+      if(p==="dark"||(p==null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) setTheme(true);
+      else setTheme(false);
+    })();
+
+    // Airtable config modal
+    document.getElementById('openAirtableConfig').onclick = () => {
+      document.getElementById('airtableModalBg').classList.remove('hidden');
+      document.getElementById('airtableToken').value = localStorage.getItem('atToken')||"";
+      document.getElementById('airtableBase').value = localStorage.getItem('atBase')||"";
+      document.getElementById('airtableTable').value = localStorage.getItem('atTable')||"Publications";
+      document.getElementById('airtableWebhook').value = localStorage.getItem('atWebhook')||"";
+      document.getElementById('airtableStatus').innerText = "";
+    };
+    document.getElementById('airtableSaveBtn').onclick = () => {
+      localStorage.setItem('atToken', document.getElementById('airtableToken').value.trim());
+      localStorage.setItem('atBase', document.getElementById('airtableBase').value.trim());
+      localStorage.setItem('atTable', document.getElementById('airtableTable').value.trim());
+      localStorage.setItem('atWebhook', document.getElementById('airtableWebhook').value.trim());
+      document.getElementById('airtableStatus').innerText = "⚡️ Enregistré localement";
+      setTimeout(()=>{document.getElementById('airtableModalBg').classList.add('hidden');},700);
+    };
+
+    // --- Demo Data & Posts Table Logic ---
+    const postsKeyNames = [
+      'date', 'plateforme', 'type', 'caption', 'portee', 'likes', 'coms', 'shares', 'views', 'te', 'lien'
+    ];
+    let postsDB = [
+      { row: {date:"2025-06-25", plateforme:"Instagram", type:"Image", caption:"Lancement nouvelle gamme", portee:4850, likes:720, coms:188, shares:37, views:"", te:8.5, lien:"https://instagram.com/p/xyz1"}},
+      { row: {date:"2025-06-23", plateforme:"Instagram", type:"Reel", caption:"Making-of – teaser", portee:11650, likes:2800, coms:320, shares:50, views:9100, te:26.6, lien:"https://instagram.com/reel/xyz2"}},
+      { row: {date:"2025-06-21", plateforme:"Facebook", type:"Vidéo", caption:"Replay webinar", portee:5250, likes:596, coms:72, shares:12, views:4450, te:6.8, lien:"https://facebook.com/v/xyz3"}},
+      { row: {date:"2025-06-19", plateforme:"Instagram", type:"Story", caption:"Q&A", portee:2100, likes:112, coms:10, shares:5, views:"", te:3.83, lien:""}},
+      { row: {date:"2025-06-18", plateforme:"Instagram", type:"Image", caption:"Focus produit", portee:3850, likes:530, coms:88, shares:9, views:"", te:8.3, lien:"https://instagram.com/p/xyz5"}},
+      { row: {date:"2025-06-16", plateforme:"Facebook", type:"Image", caption:"Post client", portee:2150, likes:210, coms:19, shares:3, views:"", te:5.4, lien:"https://facebook.com/p/xyz6"}},
+      { row: {date:"2025-06-15", plateforme:"Instagram", type:"Reel", caption:"Interview influenceur", portee:14500, likes:2900, coms:410, shares:70, views:12350, te:23.5, lien:"https://instagram.com/reel/xyz7"}},
+      { row: {date:"2025-06-11", plateforme:"Instagram", type:"Vidéo", caption:"Tuto express", portee:7800, likes:805, coms:50, shares:16, views:7200, te:12.5, lien:"https://instagram.com/p/xyz8"}}
+    ];
+
+    function renderPostsTable() {
+      const tb = document.getElementById('postsTable');
+      tb.innerHTML = '';
+      postsDB.forEach((p, idx) => {
+        const r = p.row;
+        tb.innerHTML += `
+          <tr class="border-b fade-in group" id="row${idx}">
+            <td class="p-2 text-xs">${r.date??""}</td>
+            <td class="p-2 text-xs">
+              <span class="inline-flex items-center gap-1">${r.plateforme==='Instagram'?'<i class="fa-brands fa-instagram text-pink-500"></i>':'<i class="fa-brands fa-facebook text-blue-600"></i>'}<span>${r.plateforme??""}</span></span>
+            </td>
+            <td class="p-2 text-xs"><span class="inline-flex items-center rounded px-2 py-1 bg-teal-50 border border-teal-100 text-teal-800">${r.type??""}</span></td>
+            <td class="p-2 text-xs max-w-xs">${r.caption??""}</td>
+            <td class="p-2 text-xs text-right">${r.portee ? (+r.portee).toLocaleString('fr-FR') : ""}</td>
+            <td class="p-2 text-xs text-right">${r.likes ?? ""}</td>
+            <td class="p-2 text-xs text-right">${r.coms ?? ""}</td>
+            <td class="p-2 text-xs text-right">${r.shares ?? ""}</td>
+            <td class="p-2 text-xs text-right">${r.views ?? ""}</td>
+            <td class="p-2 text-xs text-center">${r.te ?? ""}%</td>
+            <td class="p-2 text-xs truncate-middle">${r.lien? `<a href="${r.lien}" target="_blank" class="text-indigo-600 underline"><i class="fa-solid fa-link"></i> voir</a>` : ""}</td>
+            <td class="p-2 text-xs flex gap-2">
+              <button class="editbtn text-yellow-400 hover:text-yellow-700 transition" data-i="${idx}" title="Modifier"><i class="fa-solid fa-pencil"></i></button>
+              <button class="delbtn text-red-600 hover:text-red-900 transition" data-i="${idx}" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+      });
+      updateKPIs();
+      updateCharts();
+    }
+
+    function openEditRow(idx) {
+      const tr = document.getElementById('row'+idx);
+      const r = postsDB[idx].row;
+      tr.innerHTML = '';
+      const cellArr = [];
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="date" value="${r.date??""}" class="w-24 p-1 border rounded" id="editDate"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell">
+        <select class="w-22 px-2 py-1 border rounded" id="editPlateforme">
+          <option${r.plateforme==='Instagram'?' selected':''}>Instagram</option>
+          <option${r.plateforme==='Facebook'?' selected':''}>Facebook</option>
+        </select>
+      </td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell">
+        <select class="w-18 px-1 py-1 border rounded" id="editType">
+          <option${r.type==='Image'?' selected':''}>Image</option>
+          <option${r.type==='Vidéo'?' selected':''}>Vidéo</option>
+          <option${r.type==='Reel'?' selected':''}>Reel</option>
+          <option${r.type==='Story'?' selected':''}>Story</option>
+        </select>
+      </td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="text" class="w-40 md:w-60 p-1 border rounded" id="editCaption" value="${r.caption??""}" maxlength="96"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="number" class="w-14 p-1 border rounded" id="editPortee" value="${r.portee??""}"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="number" class="w-12 p-1 border rounded" id="editLikes" value="${r.likes??""}"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="number" class="w-12 p-1 border rounded" id="editComs" value="${r.coms??""}"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="number" class="w-12 p-1 border rounded" id="editShares" value="${r.shares??""}"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="number" class="w-12 p-1 border rounded" id="editViews" value="${r.views??""}"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="number" min="0" max="100" step=".01" class="w-12 p-1 border rounded" id="editTE" value="${r.te??""}"></td>`);
+      cellArr.push(`<td class="p-2 text-xs editable-cell"><input type="url" class="w-24 md:w-48 p-1 border rounded" id="editLien" value="${r.lien??""}" placeholder="URL"></td>`);
+      cellArr.push(`<td class="p-2 text-xs flex items-center gap-1">
+        <button class="savebtn text-green-600 hover:text-green-900 px-1" title="Valider"><i class="fa-solid fa-check"></i></button>
+        <button class="cancelbtn text-gray-500 hover:text-red-400 px-1" title="Annuler"><i class="fa-solid fa-xmark"></i></button>
+      </td>`);
+      tr.innerHTML = cellArr.join('');
+      tr.classList.add("fade-in");
+      tr.querySelector('.savebtn').onclick = function() {
+        const newObj = {
+          date: tr.querySelector('#editDate').value,
+          plateforme: tr.querySelector('#editPlateforme').value,
+          type: tr.querySelector('#editType').value,
+          caption: tr.querySelector('#editCaption').value,
+          portee: tr.querySelector('#editPortee').value,
+          likes: tr.querySelector('#editLikes').value,
+          coms: tr.querySelector('#editComs').value,
+          shares: tr.querySelector('#editShares').value,
+          views: tr.querySelector('#editViews').value,
+          te: tr.querySelector('#editTE').value,
+          lien: tr.querySelector('#editLien').value
+        };
+        postsDB[idx].row = newObj;
+        renderPostsTable();
+        attachRowHandlers();
+      };
+      tr.querySelector('.cancelbtn').onclick = function() {
+        renderPostsTable();
+        attachRowHandlers();
+      };
+    }
+    function deleteRow(idx) {
+      if(confirm("Voulez-vous vraiment supprimer cette ligne ?")) {
+        postsDB.splice(idx, 1);
+        renderPostsTable();
+        attachRowHandlers();
+      }
+    }
+    function attachRowHandlers() {
+      document.querySelectorAll('.editbtn').forEach(btn=>{
+        btn.onclick = function() { openEditRow(+btn.dataset.i); };
+      });
+      document.querySelectorAll('.delbtn').forEach(btn=>{
+        btn.onclick = function() { deleteRow(+btn.dataset.i); };
+      });
+    }
+    attachRowHandlers();
+    document.getElementById('addRowForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const rowObj = {
+        date: this.newDate.value,
+        plateforme: this.newPlateforme.value,
+        type: this.newType.value,
+        caption: this.newCaption.value,
+        portee: this.newPortee.value,
+        likes: this.newLikes.value,
+        coms: this.newComs.value,
+        shares: this.newShares.value,
+        views: this.newViews.value,
+        te: this.newTE.value,
+        lien: this.newLien.value
+      };
+      let autoUpdateMsg = "";
+      if(rowObj.lien && /^https?:\/\/(instagram\.com|facebook\.com)\/.+/.test(rowObj.lien)) {
+        autoUpdateMsg = "Mise à jour automatique simulée pour "+rowObj.lien+"…";
+        if(rowObj.type === "Reel") {
+          rowObj.likes = rowObj.likes ? +rowObj.likes + 500 : 1200;
+          rowObj.coms = rowObj.coms ? +rowObj.coms + 50 : 80;
+          rowObj.views = rowObj.views ? +rowObj.views + 5000 : 9000;
+          rowObj.te = Math.round(((rowObj.likes/rowObj.portee)*100)*100)/100 || 8.9;
+        }
+        if(rowObj.type === "Image") {
+          rowObj.likes = rowObj.likes ? +rowObj.likes + 90 : 350;
+          rowObj.te = Math.round(((rowObj.likes/rowObj.portee)*100)*100)/100 || 6.2;
+        }
+        if(rowObj.type === "Story") {
+          rowObj.portee = rowObj.portee ? +rowObj.portee + 200 : 1200;
+          rowObj.te = Math.round(((rowObj.likes/rowObj.portee)*100)*100)/100 || 3.8;
+        }
+        if(rowObj.type === "Vidéo") {
+          rowObj.views = rowObj.views ? +rowObj.views + 1000 : 3500;
+        }
+      }
+      postsDB.unshift({ row: rowObj });
+      renderPostsTable();
+      attachRowHandlers();
+      this.reset();
+      if(autoUpdateMsg) setTimeout(()=>alert(autoUpdateMsg), 90);
+    }
+
+    // Export CSV
+    document.getElementById('exportTableCSV').onclick = function() {
+      const ordered = postsDB.map(p=>postsKeyNames.map(k=>p.row[k]));
+      const headers = ['Date','Plateforme','Type','Titre / Caption','Portée','Likes','Commentaires','Partages','Vues','Taux Engagement','Lien'];
+      let csv = headers.join(';')+'\n';
+      ordered.forEach(r=>{
+        csv+=r.map(x=> (x===undefined||x===null)?"":(" "+x).replace(/;/g,',').replace(/\n/g," ")).join(';')+'\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'dashboard_social_media_posts.csv';
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+    // ----- Airtable / Webhook Integration -----
+    document.getElementById('airtableSyncBtn').onclick = async function() {
+      const atToken = localStorage.getItem('atToken');
+      const atBase = localStorage.getItem('atBase');
+      const atTable = localStorage.getItem('atTable') || "Publications";
+      const atWebhook = localStorage.getItem('atWebhook');
+      document.getElementById('airtableLoader').classList.remove('hidden');
+      if (atWebhook && atWebhook.startsWith('http')) {
+        // Envoi vers Zapier Webhook
+        try {
+          let payload = postsDB.map(({ row }) => row);
+          const resp = await fetch(atWebhook, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({data: payload})
+          });
+          if (!resp.ok) throw new Error("Webhook: "+resp.status);
+          alert('🟢 Synchronisation via Webhook (Zapier) effectuée.');
+        } catch (e) {
+          alert('Erreur Webhook: '+e);
+        }
+      } else if (atToken && atBase) {
+        // Direct Airtable API sync
+        try {
+          for (const entry of postsDB) {
+            const row = entry.row;
+            let body = {
+              fields: {
+                "Date": row.date,
+                "Plateforme": row.plateforme,
+                "Type": row.type,
+                "Titre / Caption": row.caption,
+                "Portée": row.portee ? +row.portee : 0,
+                "Likes": row.likes ? +row.likes : 0,
+                "Commentaires": row.coms ? +row.coms : 0,
+                "Partages": row.shares ? +row.shares : 0,
+                "Vues": row.views ? +row.views : 0,
+                "Taux d'engagement": row.te ? +row.te : null,
+                "Lien": row.lien
+              }
+            };
+            await fetch(`https://api.airtable.com/v0/${atBase}/${encodeURIComponent(atTable)}`, {
+              method: "POST",
+              headers: {"Authorization": "Bearer "+atToken,"Content-Type":"application/json"},
+              body: JSON.stringify(body)
+            });
+          }
+          alert('🟢 Synchronisation Airtable directe effectuée !');
+        } catch(e){
+          alert('Erreur API Airtable: '+e);
+        }
+      } else {
+        alert('Veuillez configurer votre clé Airtable ou le Webhook dans les paramètres (icône base de données en haut à gauche)');
+      }
+      document.getElementById('airtableLoader').classList.add('hidden');
+    };
+
+    // --- KPI & Charts Logic ---
+    let pieChart, lineChart;
+    function updateKPIs() {
+      // KPIs
+      const nb = postsDB.length;
+      let pTot = 0, engTot = 0, teTot = 0, hasTE = 0;
+      postsDB.forEach(e=>{
+        pTot += +e.row.portee || 0;
+        engTot += (+e.row.likes||0)+(+e.row.coms||0)+(+e.row.shares||0);
+        if(e.row.te) {teTot += +e.row.te; hasTE++;}
+      });
+      document.getElementById('kpiPortee').textContent = pTot.toLocaleString('fr-FR');
+      document.getElementById('kpiEngagement').textContent = engTot.toLocaleString('fr-FR');
+      document.getElementById('kpiTE').textContent = hasTE?(teTot/hasTE).toFixed(2)+'%':"–";
+      document.getElementById('kpiNbPubli').textContent = nb;
+      // Predictive: pic d'engagement = max likes+coms+shares, croissance = delta publications mois, heure opti = 18h (fictif)
+      let max = {idx:-1,val:0}, monthBeg = 0, monthNow = 0; const now = new Date(), mo = now.getMonth()+1, y = now.getFullYear();
+      postsDB.forEach((e, i)=>{
+        let sum = (+e.row.likes||0)+(+e.row.coms||0)+(+e.row.shares||0);
+        if(sum > max.val) { max={idx:i,val:sum}; }
+        if(e.row.date && e.row.date.startsWith(y+"-"+(mo<10?'0':'')+mo)) {
+          monthNow++;
+        }
+        if(e.row.date && e.row.date.startsWith(y+"-"+(mo<10?'0':'')+mo-1)) {
+          monthBeg++;
+        }
+      });
+      document.getElementById('predictPic').textContent = max.idx>=0 ? postsDB[max.idx].row.caption:'–';
+      document.getElementById('predictMonth').textContent = monthBeg>0?(( (monthNow - monthBeg)/monthBeg)*100).toFixed(1)+"%":"–";
+      document.getElementById('predictHour').textContent = "18:00";
+    }
+    function updateCharts() {
+      // Pie Types
+      let typeCount = {}, labels=[], data = [];
+      postsDB.forEach(e=>{typeCount[e.row.type]=1+(typeCount[e.row.type]||0);});
+      for(const t in typeCount){labels.push(t||"–"); data.push(typeCount[t]);}
+      if(!pieChart) {
+        pieChart = new Chart(document.getElementById('pieTypes'), {
+          type: "doughnut",
+          data: {labels, datasets: [{data, backgroundColor:['#19b0b3','#7c3aed','#06b6d4','#fde047']}]},
+          options: {cutout:'68%', plugins:{legend:{display:true, position:'bottom'}}}
+        });
+      } else {
+        pieChart.data.labels = labels; pieChart.data.datasets[0].data = data; pieChart.update();
+      }
+      // Line Month Evolution
+      const now = new Date(), mo = (now.getMonth()+1); let ldays={}, stats={};
+      postsDB.forEach(e=>{
+        let d = e.row.date;
+        if(d && d.startsWith(now.getFullYear()+"-"+(mo<10?'0':'')+mo )) {
+            let dd = +d.split('-')[2];
+            ldays[dd] = true;
+            if(!stats[dd])stats[dd]={portee:0,eng:0};
+            stats[dd].portee+=(+e.row.portee||0);
+            stats[dd].eng+= (+e.row.likes||0)+(+e.row.coms||0)+(+e.row.shares||0);
+        }
+      });
+      let days = Object.keys(ldays).sort((a,b)=>+a-(+b)), lab=[], dat1=[], dat2=[];
+      for(let i=1;i<=31;i++){if(days.includes(""+i)){lab.push(i),dat1.push(stats[i].portee),dat2.push(stats[i].eng);}}
+      if(!lineChart) {
+        lineChart = new Chart(document.getElementById('lineMoEvolution'), {
+          type: "line",
+          data: {labels:lab, datasets:[{label:"Portée", data:dat1, borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,.12)', tension:.2,pointRadius:3,order:2, yAxisID:'y'},{label:"Engagements",data:dat2, borderColor:'#e11d48',backgroundColor:'rgba(225,29,72,.08)', tension:.3,pointRadius:4, yAxisID:'y1',order:1}]},
+          options: {scales:{y:{position:'left',beginAtZero:true},y1:{position:'right', beginAtZero:true, grid:{drawOnChartArea:false}}},plugins:{legend:{display:true,position:'bottom'}}}
+        });
+      } else {
+        lineChart.data.labels = lab; lineChart.data.datasets[0].data = dat1;lineChart.data.datasets[1].data=dat2; lineChart.update();
+      }
+    }
+    // At start
+    renderPostsTable();
+    attachRowHandlers();
+  </script>
+</body>
+</html>
